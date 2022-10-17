@@ -26,6 +26,7 @@
 #include "clang/Lex/CodeCompletionHandler.h"
 #include "clang/Lex/Preprocessor.h"
 #include "clang/Sema/DeclSpec.h"
+#include "clang/Sema/JytestHint.h"
 #include "clang/Sema/LoopHint.h"
 #include "clang/Sema/Sema.h"
 #include "llvm/ADT/SmallVector.h"
@@ -194,6 +195,7 @@ class Parser : public CodeCompletionHandler {
   std::unique_ptr<PragmaHandler> MSIntrinsic;
   std::unique_ptr<PragmaHandler> CUDAForceHostDeviceHandler;
   std::unique_ptr<PragmaHandler> OptimizeHandler;
+  std::unique_ptr<PragmaHandler> JytestHandler;
   std::unique_ptr<PragmaHandler> LoopHintHandler;
   std::unique_ptr<PragmaHandler> UnrollHintHandler;
   std::unique_ptr<PragmaHandler> NoUnrollHintHandler;
@@ -614,6 +616,9 @@ private:
   /// #pragma clang __debug captured
   StmtResult HandlePragmaCaptured();
 
+  /// ADDED NEW JYTEST PRAGMA
+  bool HandlePragmaJytest(JytestHint &Hint);
+  
   /// \brief Handle the annotation token produced for
   /// #pragma clang loop and #pragma unroll.
   bool HandlePragmaLoopHint(LoopHint &Hint);
@@ -1817,6 +1822,10 @@ private:
   StmtResult ParseReturnStatement();
   StmtResult ParseAsmStatement(bool &msAsm);
   StmtResult ParseMicrosoftAsmStatement(SourceLocation AsmLoc);
+  StmtResult ParsePragmaJytest(StmtVector &Stmts,
+                                 AllowedConstructsKind Allowed,
+                                 SourceLocation *TrailingElseLoc,
+                                 ParsedAttributesWithRange &Attrs);
   StmtResult ParsePragmaLoopHint(StmtVector &Stmts,
                                  AllowedConstructsKind Allowed,
                                  SourceLocation *TrailingElseLoc,

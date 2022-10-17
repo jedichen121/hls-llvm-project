@@ -2638,6 +2638,29 @@ def InitSeg : Attr {
   }];
 }
 
+/// ADDED NEW JYTEST PRAGMA CODE 
+def Jytest : Attr {
+  let Spellings = [Pragma<"", "jytest">];
+  let Args = [EnumArgument<"Option", "OptionType",
+                          ["main", "funct"],
+                          ["Main", "Funct"]>,
+              ExprArgument<"ValueF">, ExprArgument<"Value">];
+  let AdditionalMembers = [{
+  static const char *getOptionName(int Option) {
+    switch(Option) {
+    case Main: return "main";
+    case Funct: return "funct";
+    }
+    llvm_unreachable("Unhandled Jytest option.");
+  }
+    void printPrettyPragma(raw_ostream &OS, const PrintingPolicy &Policy) const {
+      return;
+    }
+  }];
+  let Documentation = [JytestDocs];
+}
+/// FINISH NEW JYTEST PRAGMA CODE
+
 def LoopHint : Attr {
   /// #pragma clang loop <option> directive
   /// vectorize: vectorizes loop operations if State == Enable.

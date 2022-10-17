@@ -6655,6 +6655,8 @@ static void handleFunctionDependenceAttr(Sema &S, Decl*D, const AttributeList &A
 static void ProcessDeclAttribute(Sema &S, Scope *scope, Decl *D,
                                  const AttributeList &Attr,
                                  bool IncludeCXX11Attributes) {
+  // assert(false && "ProcessDeclAttribute");
+  
   if (Attr.isInvalid() || Attr.getKind() == AttributeList::IgnoredAttribute)
     return;
 

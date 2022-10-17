@@ -356,6 +356,8 @@ static bool checkHasEnumField(const RecordType *t) {
 }
 
 static void handleSDxKernel(Sema &S, Decl *D, const AttributeList &Attr) {
+  S.Diag(Attr.getLoc(), diag::err_attribute_too_many_arguments)
+        << Attr.getName() << 1;
   if (Attr.getNumArgs() > 2) {
     S.Diag(Attr.getLoc(), diag::err_attribute_too_many_arguments)
         << Attr.getName() << 1;
@@ -2099,6 +2101,7 @@ static void handleHLSPreserve(Sema &S, Decl *D, const AttributeList &Attr) {
 
 bool Sema::ProcessXlxDeclAttributes(Scope *scope, Decl *D,
                                     const AttributeList &Attr) {
+  assert(false && "ProcessXlxDeclAttributes");
   switch (Attr.getKind()) {
   default:
     break;

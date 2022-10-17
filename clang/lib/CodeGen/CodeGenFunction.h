@@ -1894,6 +1894,9 @@ public:
   /// code.
   void EmitBranch(llvm::BasicBlock *Block);
 
+  // ADDED NEW JYTEST PRAGMA
+  void addJytestMetadata(llvm::BasicBlock *block, ArrayRef<const Attr *> JytestAttrs);
+  
   /// HaveInsertPoint - True if an insertion point is defined. If not, this
   /// indicates that the current code being emitted is unreachable.
   bool HaveInsertPoint() const {

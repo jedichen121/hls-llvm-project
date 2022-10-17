@@ -809,6 +809,10 @@ ANNOTATION(pragma_XlxHLS_directive)
 ANNOTATION(pragma_XlxHLS_old)
 ANNOTATION(pragma_XlxHLS_end)
 
+// Custom Annotations for testing
+ANNOTATION(pragma_jytest)
+ANNOTATION(pragma_jytest_end)
+
 // Annotations for loop pragma directives #pragma clang loop ...
 // The lexer produces these so that they only take effect when the parser
 // handles #pragma loop ... directives.

@@ -2319,6 +2319,14 @@ attributes.
   }];
 }
 
+def JytestDocs : Documentation {
+  let Category = DocCatStmt;
+  let Heading = "#pragma jytest";
+  let Content = [{
+The ``#pragma jytest`` directive allows add metadata in the IR to specific functions or to the general program.
+  }];
+}
+
 def LoopHintDocs : Documentation {
   let Category = DocCatStmt;
   let Heading = "#pragma clang loop";

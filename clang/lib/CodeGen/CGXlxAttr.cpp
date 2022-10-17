@@ -2262,9 +2262,10 @@ void CodeGenFunction::EmitMAXIInterfaceIntrinsic( const MAXIInterfaceAttr *inter
 
 void CodeGenFunction::EmitAXIStreamInterfaceIntrinsic( const AXIStreamInterfaceAttr* interface)
 {
-  if (!CurFuncDecl->hasAttr<SDxKernelAttr>()) { 
-    return ;
-  }
+  // assert(CurFuncDecl->hasAttr<SDxKernelAttr>() && "CurFuncDecl->hasAttr<SDxKernelAttr>()");
+  // if (!CurFuncDecl->hasAttr<SDxKernelAttr>()) { 
+  //   return ;
+  // }
   int64_t port_width = 0;
   Expr *port = interface->getPort();
   llvm::Value* port_var = nullptr;

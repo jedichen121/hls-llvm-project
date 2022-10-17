@@ -83,6 +83,33 @@ static Attr *handleSuppressAttr(Sema &S, Stmt *St, const AttributeList &A,
       DiagnosticIdentifiers.size(), A.getAttributeSpellingListIndex());
 }
 
+/// ADDED NEW JYTEST PRAGMA
+static Attr *handleJytestAttr(Sema &S, Stmt *St, const AttributeList &A,
+                                SourceRange) {
+  IdentifierLoc *PragmaNameLoc = A.getArgAsIdent(0);
+  IdentifierLoc *OptionLoc = A.getArgAsIdent(1);
+  Expr *ValueExpr = nullptr;
+  Expr *ValueExprF = nullptr;
+  bool PragmaMain = OptionLoc->Ident->getName() == "main";
+  bool PragmaFunct = OptionLoc->Ident->getName() == "funct";
+  JytestAttr::OptionType Option;
+  if (PragmaMain) {
+    Option = JytestAttr::Main;
+    ValueExpr = A.getArgAsExpr(2);
+  } else if (PragmaFunct) {
+    Option = JytestAttr::Funct;
+    ValueExprF = A.getArgAsExpr(2);
+    ValueExpr = A.getArgAsExpr(3);
+  } else {
+    printf("Error, no main or funct\n");
+  }
+  if (!ValueExpr) {
+    printf("Error in Sema getting N\n");
+  }
+  return JytestAttr::CreateImplicit(S.Context, Option, ValueExprF, ValueExpr, A.getRange());
+}
+/// FINISH NEW JYTEST PRAGMA
+
 static Attr *handleLoopHintAttr(Sema &S, Stmt *St, const AttributeList &A,
                                 SourceRange) {
   IdentifierLoc *PragmaNameLoc = A.getArgAsIdent(0);
@@ -368,6 +395,8 @@ static Attr *ProcessStmtAttribute(Sema &S, Stmt *St, const AttributeList &A,
   // this attribute has been transformed into AT_OpenCLUnrollHint
   case AttributeList::AT_XlxUnrollRegionHint:
     return nullptr;
+  case AttributeList::AT_Jytest:
+    return handleJytestAttr(S, St, A, Range);
   case AttributeList::AT_XCLLatency:
     return nullptr;
   case AttributeList::AT_Suppress:

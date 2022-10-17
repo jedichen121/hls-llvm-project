@@ -2684,6 +2684,10 @@ static bool HandleInterfacePragma(Parser &P, Scope *CurScope,
     return false;
   }
 
+  // P.Diag(PragmaLoc, diag::warn_xlx_pragma_applied_in_wrong_scope)
+  //       << "interface" << 0;
+  //         return false;
+
   SubjectListTy SubjectList;
   XlxPragmaArgParser PAP( P, CurScope, "", true, 
       {reqVarRefExpr("port"), 

@@ -414,6 +414,10 @@ Retry:
     HandlePragmaMSVtorDisp();
     return StmtEmpty();
 
+  case tok::annot_pragma_jytest:
+    ProhibitAttributes(Attrs);
+    return ParsePragmaJytest(Stmts, Allowed, TrailingElseLoc, Attrs);
+
   case tok::annot_pragma_loop_hint:
     ProhibitAttributes(Attrs);
     return ParsePragmaLoopHint(Stmts, Allowed, TrailingElseLoc, Attrs);
@@ -2114,6 +2118,90 @@ StmtResult Parser::ParseReturnStatement() {
     return Actions.ActOnCoreturnStmt(getCurScope(), ReturnLoc, R.get());
   return Actions.ActOnReturnStmt(ReturnLoc, R.get(), getCurScope());
 }
+
+// NEW ADDED JYTEST PRAGMA
+
+StmtResult Parser::ParsePragmaJytest(StmtVector &Stmts,
+                                       AllowedConstructsKind Allowed,
+                                       SourceLocation *TrailingElseLoc,
+                                       ParsedAttributesWithRange &Attrs) {
+  // Create temporary attribute list.
+  ParsedAttributesWithRange TempAttrs(AttrFactory);
+  while (Tok.is(tok::annot_pragma_jytest)) {
+    JytestHint Hint;
+    if (!HandlePragmaJytest(Hint))
+      continue;
+    if (Hint.OptionLoc->Ident->getName() == "funct") {
+      ArgsUnion ArgHints[] = {Hint.PragmaNameLoc, Hint.OptionLoc,
+                            ArgsUnion(Hint.ValueExprF), ArgsUnion(Hint.ValueExpr)};
+      TempAttrs.addNew(Hint.PragmaNameLoc->Ident, Hint.Range, nullptr,
+                     Hint.PragmaNameLoc->Loc, ArgHints, 4,
+                     AttributeList::AS_Pragma);
+    } else if (Hint.OptionLoc->Ident->getName() == "main") {
+      // Hint.ValueExprF is NOT needed in this case
+      ArgsUnion ArgHints[] = {Hint.PragmaNameLoc, Hint.OptionLoc,
+                            ArgsUnion(Hint.ValueExpr)};
+      TempAttrs.addNew(Hint.PragmaNameLoc->Ident, Hint.Range, nullptr,
+                     Hint.PragmaNameLoc->Loc, ArgHints, 3,
+                     AttributeList::AS_Pragma);
+    } else {
+      printf("Error, no valid option in ParseStmt\n");
+    }
+  }
+  // Get the next statement.
+  MaybeParseCXX11Attributes(Attrs);
+  StmtResult S = ParseStatementOrDeclarationAfterAttributes(
+      Stmts, Allowed, TrailingElseLoc, Attrs);
+  Attrs.takeAllFrom(TempAttrs);
+  return S;
+}
+
+
+// StmtResult Parser::ParsePragmaJytest(StmtVector &Stmts,
+//                                        AllowedConstructsKind Allowed,
+//                                        SourceLocation *TrailingElseLoc,
+//                                        ParsedAttributesWithRange &Attrs) {
+//   // Create temporary attribute list.
+//   Token startTok = Tok;
+//   // if (Tok.is(tok::annot_pragma_jytest))
+//   //   Diag(Tok, diag::err_expected) << "in Stmt ParsePragmaJytest";
+
+//   while (Tok.is(tok::annot_pragma_jytest)) {
+//     // Diag(Tok, diag::err_expected) << Tok.getKind();
+//     ConsumeAnyToken();
+//   }
+//   // Diag(Tok, diag::err_expected) << "in Stmt after while";
+//   SourceLocation PragmaLoc = Tok.getLocation();
+//   //2. add GNU - attribute , with the name "annotate" , and parameter "\"end_obf"\" 
+//   IdentifierInfo * idfAnnotate= PP.getIdentifierInfo ("annotate");
+//   Token idfAnnName;
+//   idfAnnName.startToken();
+//   idfAnnName.setKind(tok::string_literal);
+//   StringRef ann;
+//   ann=StringRef("\"test_annot\"");
+//   idfAnnName.setLiteralData(ann.data());
+//   idfAnnName.setLength(ann.size());
+
+//   //create GNU - attribute 
+//   ParsedAttributesWithRange TempAttrs(AttrFactory);
+//   SourceRange sr(PragmaLoc, PragmaLoc);
+//   ArgsVector ArgExprs;
+//   SmallVector<Token, 4> StringToks;
+//   StringToks.push_back(idfAnnName);
+
+//   //create string parameter for the attribute 
+//   ExprResult ArgExpr(Actions.ActOnStringLiteral(StringToks,getCurScope()));
+//   ArgExprs.push_back(ArgExpr.get());
+//   TempAttrs.addNew(idfAnnotate, sr , (IdentifierInfo *)nullptr, PragmaLoc,
+//                 ArgExprs.data(), ArgExprs.size(), AttributeList::AS_Pragma);
+
+//   //3. let clang deal with newly created declaration with annotation .
+//   SourceLocation DeclStart = startTok.getLocation(), DeclEnd;
+//   DeclGroupPtrTy Decl = ParseDeclaration(DeclaratorContext::BlockContext, DeclEnd, TempAttrs);
+//   // Diag(startTok, diag::err_expected) << "in Stmt return";
+//   return Actions.ActOnDeclStmt(Decl, DeclStart, DeclEnd); 
+// }
+// /// FINISH NEW JYTEST PRAGMA
 
 StmtResult Parser::ParsePragmaLoopHint(StmtVector &Stmts,
                                        AllowedConstructsKind Allowed,
